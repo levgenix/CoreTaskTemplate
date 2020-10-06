@@ -17,16 +17,23 @@ public class UserServiceImpl implements UserService {
         userDao.dropUsersTable();
     }
 
+    //TODO: надо бы int возвращать
     public void saveUser(String name, String lastName, byte age) {
         userDao.saveUser(name, lastName, age);
+        System.out.println("User с именем – " + name + " добавлен в базу данных");
     }
 
+    //TODO: надо бы int возвращать
     public void removeUserById(long id) {
         userDao.removeUserById(id);
     }
 
     public List<User> getAllUsers() {
-        return userDao.getAllUsers();
+        List<User> users =  userDao.getAllUsers();
+        for (User user : users) {
+            System.out.println(user);
+        }
+        return users;
     }
 
     public void cleanUsersTable() {

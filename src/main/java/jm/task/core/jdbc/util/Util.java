@@ -38,14 +38,4 @@ public class Util {
             throw new IOException("Config file not found", e);
         }
     }
-
-    public static void close() throws SQLException {
-        try {
-            if (null != conn) {
-                conn.close();
-            }
-        } catch (SQLException e) {
-            throw new SQLException("Close database connection error", e);
-        }
-    }
 }
