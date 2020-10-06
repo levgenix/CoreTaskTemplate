@@ -53,6 +53,12 @@ public class UserDaoJDBCImpl implements UserDao {
                 throwables.printStackTrace();
             }
             e.printStackTrace();
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
         }
     }
 
@@ -69,6 +75,12 @@ public class UserDaoJDBCImpl implements UserDao {
                 throwables.printStackTrace();
             }
             e.printStackTrace();
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
         }
     }
 
@@ -101,6 +113,12 @@ public class UserDaoJDBCImpl implements UserDao {
                 throwables.printStackTrace();
             }
             e.printStackTrace();
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
         }
     }
 }
