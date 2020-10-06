@@ -3,6 +3,8 @@ package jm.task.core.jdbc.util;
 import javax.sql.PooledConnection;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -27,12 +29,13 @@ public class Util {
         }
     }
 
+    //TODO: Exceptions
     private static Properties getProps() throws IOException {
         Properties props = new Properties();
-        try(InputStream in = Files.newInputStream(Paths.get("database.properties"))){
+        try (InputStream in = Files.newInputStream(Paths.get(Util.class.getResource("/database.properties").toURI()))) {
             props.load(in);
             return props;
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
             throw new IOException("Config file not found", e);
         }
