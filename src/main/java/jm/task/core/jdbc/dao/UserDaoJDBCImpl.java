@@ -46,6 +46,7 @@ public class UserDaoJDBCImpl implements UserDao {
             pstm.setByte(3, age);
             pstm.executeUpdate();
             conn.commit();
+            conn.setAutoCommit(true);
         } catch (SQLException e) {
             try {
                 conn.rollback();
@@ -53,12 +54,6 @@ public class UserDaoJDBCImpl implements UserDao {
                 throwables.printStackTrace();
             }
             e.printStackTrace();
-        } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
         }
     }
 
@@ -68,6 +63,7 @@ public class UserDaoJDBCImpl implements UserDao {
             pstm.setLong(1, id);
             pstm.executeUpdate();
             conn.commit();
+            conn.setAutoCommit(true);
         } catch (SQLException e) {
             try {
                 conn.rollback();
@@ -75,12 +71,6 @@ public class UserDaoJDBCImpl implements UserDao {
                 throwables.printStackTrace();
             }
             e.printStackTrace();
-        } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
         }
     }
 
@@ -106,6 +96,7 @@ public class UserDaoJDBCImpl implements UserDao {
             conn.setAutoCommit(false);
             statement.executeUpdate("TRUNCATE TABLE user");
             conn.commit();
+            conn.setAutoCommit(true);
         } catch (SQLException e) {
             try {
                 conn.rollback();
@@ -113,12 +104,6 @@ public class UserDaoJDBCImpl implements UserDao {
                 throwables.printStackTrace();
             }
             e.printStackTrace();
-        } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
         }
     }
 }
