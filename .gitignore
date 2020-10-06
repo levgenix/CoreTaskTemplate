@@ -2,6 +2,8 @@
 ### Example user template template
 ### Example user template
 
+src/main/resources/database.properties.*
+
 # IntelliJ project files
 .idea
 *.iml
