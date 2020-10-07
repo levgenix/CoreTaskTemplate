@@ -27,37 +27,40 @@ public class Main {
 //        userService.cleanUsersTable();
 //        userService.dropUsersTable();
 
-//        Configuration cfg = new Configuration().addResource("hibernate.properties");
-        final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
-                //.applySettings(cfg.getProperties())
-                .configure()
-                //.configure("/hibernate.properties")
-                //.configure(Main.class.getResource("/hibernate.props"))
-                .build();
+        Configuration configuration = new Configuration();
+//        configuration.addAnnotatedClass(User.class);
+        configuration.configure();
 
+        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
+//        final ServiceRegistry registry = new StandardServiceRegistryBuilder()
+////                .configure()
+////                .configure("/hibernate.properties")
+//                .build();
+
+        final ServiceRegistry registry = builder.build();
         try (SessionFactory sessionFactory = new MetadataSources(registry).buildMetadata().buildSessionFactory()) {
+//        try (SessionFactory sessionFactory = configuration.buildSessionFactory(registry.build())) {
 
             //TODO: Saving entities
             Session session = sessionFactory.openSession();
-            session.beginTransaction();
-            session.save(new User("Ярослав", "Мудрый", (byte) 21));
-            session.getTransaction().commit();
+//            session.beginTransaction();
+//            session.save(new User("Ярослав", "Мудрый", (byte) 21));
+//            session.getTransaction().commit();
             session.close();
 
             //TODO: Obtaining a list of entities
+//            session = sessionFactory.openSession();
+//            session.beginTransaction();
+//            List result = session.createQuery("from User").list();
+//            for (User user : (List<User>) result) {
+//                System.out.println(user);
+//            }
+//            session.getTransaction().commit();
+//            session.close();
 
 
-            session = sessionFactory.openSession();
-            session.beginTransaction();
-            List result = session.createQuery("from Event").list();
-            for (User user : (List<User>) result) {
-                System.out.println(user);
-            }
-            session.getTransaction().commit();
-            session.close();
-
-
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             StandardServiceRegistryBuilder.destroy(registry);
         }
 
