@@ -38,7 +38,7 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
-    public void saveUser(String name, String lastName, byte age) {
+    public void saveUser(String name, String lastName, byte age) throws SQLException {
         try (PreparedStatement pstm = conn.prepareStatement("INSERT INTO user (name, last_name, age) VALUES (?, ?, ?)")) {
             conn.setAutoCommit(false);
             pstm.setString(1, name);
@@ -46,31 +46,25 @@ public class UserDaoJDBCImpl implements UserDao {
             pstm.setByte(3, age);
             pstm.executeUpdate();
             conn.commit();
-            conn.setAutoCommit(true);
         } catch (SQLException e) {
-            try {
-                conn.rollback();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
             e.printStackTrace();
+            conn.rollback();
+        } finally {
+            conn.setAutoCommit(true);
         }
     }
 
-    public void removeUserById(long id) {
+    public void removeUserById(long id) throws SQLException {
         try (PreparedStatement pstm = conn.prepareStatement("DELETE FROM user WHERE id = ?")) {
             conn.setAutoCommit(false);
             pstm.setLong(1, id);
             pstm.executeUpdate();
             conn.commit();
-            conn.setAutoCommit(true);
         } catch (SQLException e) {
-            try {
-                conn.rollback();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
             e.printStackTrace();
+            conn.rollback();
+        } finally {
+            conn.setAutoCommit(true);
         }
     }
 
@@ -91,19 +85,16 @@ public class UserDaoJDBCImpl implements UserDao {
         return users;
     }
 
-    public void cleanUsersTable() {
+    public void cleanUsersTable() throws SQLException {
         try (Statement statement = conn.createStatement()) {
             conn.setAutoCommit(false);
             statement.executeUpdate("TRUNCATE TABLE user");
             conn.commit();
-            conn.setAutoCommit(true);
         } catch (SQLException e) {
-            try {
-                conn.rollback();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
             e.printStackTrace();
+            conn.rollback();
+        } finally {
+            conn.setAutoCommit(true);
         }
     }
 }
