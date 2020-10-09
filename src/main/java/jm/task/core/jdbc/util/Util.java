@@ -2,10 +2,13 @@ package jm.task.core.jdbc.util;
 
 import jm.task.core.jdbc.model.User;
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.boot.MetadataBuilder;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Environment;
+import org.hibernate.mapping.PersistentClass;
+import org.hibernate.service.ServiceRegistry;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +22,8 @@ import java.util.Properties;
 
 public class Util {
     private static Connection conn;
-    private static Session session;
+    private static SessionFactory sessionFactory;
+    private static Metadata metadata;
 
     private Util() {}
 
@@ -47,22 +51,41 @@ public class Util {
         }
     }
 
-    public static Session getSession() throws HibernateException {
-        if (null == session) {
+    public static SessionFactory getSessionFactory() throws HibernateException {
+        if (null == sessionFactory) {
             try {
-                StandardServiceRegistryBuilder serviceRegistryBuilder = new StandardServiceRegistryBuilder();
-                serviceRegistryBuilder
-                        .applySetting("hibernate.use_sql_comments", "false")
-                        .applySetting("hibernate.show_sql", "true")
-                        .applySetting("hibernate.hbm2ddl.auto", "update"); //create-drop
-                MetadataSources metadataSources = new MetadataSources(serviceRegistryBuilder.build());
+                ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                        .applySetting(Environment.USE_SQL_COMMENTS, false)
+                        .applySetting(Environment.SHOW_SQL, false)
+//                        .applySetting(Environment.USE_NEW_ID_GENERATOR_MAPPINGS, "true")
+                        .applySetting(Environment.HBM2DDL_AUTO, "none") //update create-drop
+                        .build();
+                MetadataSources metadataSources = new MetadataSources(serviceRegistry);
                 metadataSources.addAnnotatedClass(User.class);
-                MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder(); //TODO: Добавить файлы отображения hbm.xml metadataSources.addFile(...);
-                session = metadataBuilder.build().buildSessionFactory().openSession(); //TODO: sessionFactory.getCurrentSession();
+                metadata = metadataSources.getMetadataBuilder().build();
+                sessionFactory = metadata.buildSessionFactory();
             } catch (HibernateException e) {
                 throw new HibernateException("Not connecting to database", e);
             }
         }
-        return session;
+        //return session;
+        return sessionFactory;
+    }
+
+    public static String getTableName(String entityName) throws NullPointerException {
+        if (null == metadata) {
+            throw new NullPointerException("Metadata is null");
+        }
+//        try {
+//            return Util.metadata.getEntityBinding(entityName).getTable().getName();
+//        } catch (NullPointerException e) {
+//            throw new NullPointerException(String.format("Entity {%s} not found", entityName));
+//        }
+        for (PersistentClass persistentClass : Util.metadata.getEntityBindings()) {
+            if (entityName.equals(persistentClass.getJpaEntityName()) || entityName.equals(persistentClass.getClassName())) {
+                return persistentClass.getTable().getName();
+            }
+        }
+        throw new NullPointerException(String.format("Entity {%s} not found", entityName));
     }
 }

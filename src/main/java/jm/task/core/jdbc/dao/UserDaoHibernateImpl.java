@@ -6,56 +6,78 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.Collections;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
-    private Session session = null;
-    {
-        try {
-            session = Util.getSession(); //session.close();
-        } catch (HibernateException throwables) {
-            throwables.printStackTrace();
-        }
-    }
     public UserDaoHibernateImpl() {
 
     }
 
-
     @Override
     public void createUsersTable() {
-// NativeQuery
+        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.createNativeQuery("CREATE TABLE " + Util.getTableName("User") +
+                    " (id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), last_name VARCHAR(255), age INT)").executeUpdate();
+            transaction.commit();
+        } catch (NullPointerException | PersistenceException e) {
+//            e.printStackTrace();
+            if (null != transaction) {
+                try {
+                    transaction.rollback();
+                } catch (IllegalStateException ex) {
+//                    ex.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
     public void dropUsersTable() {
-
+        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.createNativeQuery("DROP TABLE " + Util.getTableName("User")).executeUpdate();
+            transaction.commit();
+        } catch (NullPointerException | PersistenceException e) {
+//            e.printStackTrace();
+            if (null != transaction) {
+                try {
+                    transaction.rollback();
+                } catch (IllegalStateException ex) {
+//                    ex.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        Transaction tx = session.beginTransaction();
-        try {
-            session.persist(new User(name, lastName, (byte) age)); //session.save(user);
-            tx.commit();
+        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.save(new User(name, lastName, (byte) age));
+            transaction.commit();
         } catch (HibernateException e) {
             e.printStackTrace();
-            if (tx!=null) {
-                tx.rollback();
+            if (null != transaction) {
+                transaction.rollback();
             }
         }
     }
 
     @Override
     public void removeUserById(long id) {
-        Transaction tx = session.beginTransaction();
-        try {
+        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaQuery<User> criteriaQuery = builder.createQuery(User.class);
             Root<User> myObject = criteriaQuery.from(User.class);
@@ -63,39 +85,37 @@ public class UserDaoHibernateImpl implements UserDao {
             criteriaQuery.select(myObject).where(equalId);
             TypedQuery<User> query = session.createQuery(criteriaQuery);
             session.delete(query.getSingleResult());
-            tx.commit();
+            transaction.commit();
         } catch (HibernateException | NoResultException e) {
             e.printStackTrace();
-            if (tx!=null) {
-                tx.rollback();
+            if (null != transaction) {
+                transaction.rollback();
             }
         }
     }
 
     @Override
     public List<User> getAllUsers() {
-        session.beginTransaction();
-        List<User> users = session.createQuery("from User").list();
-        session.getTransaction().commit();
-        return users;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            return session.createQuery("from User").list();
+        } catch (HibernateException | NoResultException e) {
+            e.printStackTrace();
+        }
+        return Collections.EMPTY_LIST;
     }
 
     @Override
     public void cleanUsersTable() {
-        session.beginTransaction();
-//        try {
-//            //System.out.println(session.getEntityManagerFactory().getMetamodel().entity(User.class).getClass().getAnnotation(User.class).getName());
-//            for (Annotation a : User.class.getAnnotations()) {
-//                System.out.println(a);
-//            }
-//            //isAnnotationPresent
-//            //getAnnotationsByType
-//            System.out.println(User.class.getAnnotation(javax.persistence.Table.class));
-//        } catch (Exception e) {
-//
-//        }
-
-        session.createNativeQuery("TRUNCATE TABLE user");
-        session.getTransaction().commit();
+        Transaction transaction = null;
+        try (Session session = Util.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.createNativeQuery("TRUNCATE TABLE " + Util.getTableName("User")).executeUpdate();
+            transaction.commit();
+        } catch (NullPointerException | HibernateException e) {
+            e.printStackTrace();
+            if (null != transaction) {
+                transaction.rollback();
+            }
+        }
     }
 }
