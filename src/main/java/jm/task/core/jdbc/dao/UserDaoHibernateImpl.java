@@ -78,13 +78,8 @@ public class UserDaoHibernateImpl implements UserDao {
         Transaction transaction = null;
         try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<User> criteriaQuery = builder.createQuery(User.class);
-            Root<User> myObject = criteriaQuery.from(User.class);
-            Predicate equalId = builder.equal( myObject.get("id"), id);
-            criteriaQuery.select(myObject).where(equalId);
-            TypedQuery<User> query = session.createQuery(criteriaQuery);
-            session.delete(query.getSingleResult());
+            User user = (User) session.get(User.class, id);
+            session.delete(user);
             transaction.commit();
         } catch (HibernateException | NoResultException e) {
             e.printStackTrace();
