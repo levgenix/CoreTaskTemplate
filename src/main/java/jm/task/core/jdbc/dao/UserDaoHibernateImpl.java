@@ -27,7 +27,7 @@ public class UserDaoHibernateImpl implements UserDao {
             session.createNativeQuery("CREATE TABLE " + Util.getTableName("User") +
                     " (id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), last_name VARCHAR(255), age INT)").executeUpdate();
             transaction.commit();
-        } catch (NullPointerException | PersistenceException e) {
+        } catch (PersistenceException e) {
 //            e.printStackTrace();
             if (null != transaction) {
                 try {
@@ -46,7 +46,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction = session.beginTransaction();
             session.createNativeQuery("DROP TABLE " + Util.getTableName("User")).executeUpdate();
             transaction.commit();
-        } catch (NullPointerException | PersistenceException e) {
+        } catch (PersistenceException e) {
 //            e.printStackTrace();
             if (null != transaction) {
                 try {
@@ -106,7 +106,7 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction = session.beginTransaction();
             session.createNativeQuery("TRUNCATE TABLE " + Util.getTableName("User")).executeUpdate();
             transaction.commit();
-        } catch (NullPointerException | HibernateException e) {
+        } catch (HibernateException e) {
             e.printStackTrace();
             if (null != transaction) {
                 transaction.rollback();
